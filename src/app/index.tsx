@@ -7,6 +7,7 @@ import dayjs from "dayjs"
 
 // DATABASE
 import { useGoalRepository } from "@/database/useGoalRepository"
+import { useTransactionRepository } from "@/database/useTransactionRepository"
 
 
 // COMPONENTS
@@ -30,7 +31,8 @@ export default function Home() {
   const [total, setTotal] = useState("")
 
   // DATABASE
-  const useGoal = useGoalRepository();
+  const useGoal = useGoalRepository()
+  const useTransaction = useTransactionRepository()
 
   // BOTTOM SHEET
   const bottomSheetRef = useRef<Bottom>(null)
@@ -48,7 +50,7 @@ export default function Home() {
       if (isNaN(totalAsNumber)) {
         return Alert.alert("Erro", "Valor inválido.")
       }
-
+      
       useGoal.create({ name, total: totalAsNumber })
 
       Keyboard.dismiss()
@@ -57,6 +59,8 @@ export default function Home() {
 
       setName("")
       setTotal("")
+
+      fetchGoals()
     } catch (error) {
       Alert.alert("Erro", "Não foi possível cadastrar.")
       console.log(error)
@@ -74,7 +78,7 @@ export default function Home() {
 
   async function fetchTransactions() {
     try {
-      const response = mocks.transactions
+      const response = useTransaction.findLatest()
 
       setTransactions(
         response.map((item) => ({
